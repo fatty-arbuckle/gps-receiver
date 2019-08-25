@@ -5,6 +5,7 @@ defmodule RegistryTest do
     {:ok, pid} = GpsReader.Registry.start_link(:whatever)
     assert %{ all: [] } == GpsReader.Registry.show(pid)
     GpsReader.Registry.add(pid, :id_foo, :pid_a)
+    GpsReader.Registry.add(pid, :id_foo, :pid_a)
     GpsReader.Registry.add(pid, :id_bar, :pid_a)
     GpsReader.Registry.add(pid, :id_foo, :pid_b)
     GpsReader.Registry.add(pid, :id_cat, :pid_b)

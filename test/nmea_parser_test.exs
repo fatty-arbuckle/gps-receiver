@@ -1,6 +1,32 @@
 defmodule NmeaParserTest do
   use ExUnit.Case
 
+  test "checksum failure" do
+    assert(
+        GpsReader.NmeaParser.parse(
+          "$GPGSA,A,3,31,25,22,29,03,32,26,14,,,,,1.44,1.12,0.90*99"
+        )
+      ==
+        {
+          :bad_checksum,
+          "$GPGSA,A,3,31,25,22,29,03,32,26,14,,,,,1.44,1.12,0.90"
+        }
+    )
+  end
+
+  test "unsupported messages" do
+    assert(
+        GpsReader.NmeaParser.parse(
+          "$NOGSA,A,3,31,25,22,29,03,32,26,14,,,,,1.44,1.12,0.90*99"
+        )
+      ==
+        {
+          :not_supported,
+          "$NOGSA,A,3,31,25,22,29,03,32,26,14,,,,,1.44,1.12,0.90*99"
+        }
+    )
+  end
+
   test "GSA messages" do
     assert(
         GpsReader.NmeaParser.parse(
@@ -73,6 +99,27 @@ defmodule NmeaParserTest do
             at: %{hours: "04", minutes: "38", seconds: "11.000"},
             latitude: %{direction: "N", hours: "41", minutes: "49.2342"},
             longitude: %{direction: "W", hours: "07", minutes: "125.9667"},
+            quality: :gps,
+            satellites_tracked: "08",
+            hdop: "1.13",
+            altitude: %{ value: "33.1", units: "M" }
+          }
+        }
+    )
+  end
+
+  test "GGA messages with missing coordinates" do
+    assert(
+        GpsReader.NmeaParser.parse(
+          "$GPGGA,043811.000,,,,,1,08,1.13,33.1,M,-34.2,M,,*4A"
+        )
+      ==
+        {
+          :GGA,
+          %{
+            at: %{hours: "04", minutes: "38", seconds: "11.000"},
+            latitude: %{direction: "???", hours: "???", minutes: "???"},
+            longitude: %{direction: "???", hours: "???", minutes: "???"},
             quality: :gps,
             satellites_tracked: "08",
             hdop: "1.13",

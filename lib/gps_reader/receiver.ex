@@ -104,6 +104,7 @@ defmodule GpsReader.Receiver do
   defp parse([]),     do: ""
   defp parse([h|[]]), do: h
   defp parse([h|t]) do
+    GpsReader.Registry.send({:raw, h})
     GpsReader.NmeaParser.parse(h)
     |> GpsReader.Registry.send
     parse(t)

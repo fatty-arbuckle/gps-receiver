@@ -17,5 +17,11 @@ defmodule GpsReaderTest do
       }
     }
     GpsReader.unregister([:GGA], self())
+    GpsReader.register([:raw], self())
+    GpsReader.Receiver.manual("$GPGGA,043811.000,4149.2342,N,07125.9667,W,1,08,1.13,33.1,M,-34.2,M,,*63")
+    assert_receive {
+      :raw, 
+      "$GPGGA,043811.000,4149.2342,N,07125.9667,W,1,08,1.13,33.1,M,-34.2,M,,*63"
+    }
   end
 end
